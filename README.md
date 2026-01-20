@@ -14,7 +14,7 @@ An interactive web-based psychology assessment that evaluates:
 - JavaScript
 
 ## 🌐 Live Demo
-👉 https://your-username.github.io/psychology-assessment/
+👉 https://tgaja1310-ctrl.github.io/psychology-assessment/
 
 ## 🎯 Features
 - Real-life psychology questions
