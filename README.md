@@ -1,2 +1,26 @@
-# psychology-assessment
-Interactive Psychology &amp; Decision-Making Assessment
+
+# 🧠 Psychology Assessment Platform
+
+An interactive web-based psychology assessment that evaluates:
+- Empathy
+- Emotional intelligence
+- Decision-making
+- Stress handling
+- Loyalty
+
+## 🔧 Tech Stack
+- HTML
+- CSS
+- JavaScript
+
+## 🌐 Live Demo
+👉 https://your-username.github.io/psychology-assessment/
+
+## 🎯 Features
+- Real-life psychology questions
+- Shuffled answer options
+- Dynamic personality profile
+- Percentage-based analysis
+
+## 📌 Author
+Gajalakshmi T
