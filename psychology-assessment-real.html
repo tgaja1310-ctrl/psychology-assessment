@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Psychology & Personality Assessment</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color: white;
+  padding: 20px;
+}
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: #020617;
+  padding: 25px;
+  border-radius: 14px;
+}
+h1 { text-align: center; }
+
+button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #38bdf8;
+}
+button:hover { background: #0ea5e9; }
+
+.result { margin-top: 20px; font-size: 18px; }
+.bar {
+  height: 18px;
+  background: #22c55e;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+.label { font-size: 14px; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🧠 Psychology Assessment</h1>
+  <p id="question"></p>
+  <div id="options"></div>
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+/* ---------- Utility: Shuffle ---------- */
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+/* ---------- Questions ---------- */
+const questions = [
+  { q:"Your friend is upset but hasn’t told you why.", traits:["empathy"],
+    opts:[
+      {t:2,text:"Sit and listen patiently"},
+      {t:1,text:"Ask once and wait"},
+      {t:0,text:"Give space"},
+      {t:0,text:"Ignore"}
+    ]},
+  { q:"Your plan fails one day before deadline.", traits:["stress","decision"],
+    opts:[
+      {t:2,text:"Stay calm and re-plan"},
+      {t:1,text:"Stressed but act"},
+      {t:0,text:"Panic"},
+      {t:0,text:"Give up"}
+    ]},
+  { q:"Teammate takes credit for your work.", traits:["emotional"],
+    opts:[
+      {t:2,text:"Address calmly"},
+      {t:1,text:"Move on"},
+      {t:0,text:"React emotionally"},
+      {t:0,text:"Resent silently"}
+    ]},
+  { q:"You get a risky opportunity.", traits:["decision"],
+    opts:[
+      {t:2,text:"Evaluate pros & cons"},
+      {t:1,text:"Take with hesitation"},
+      {t:0,text:"Avoid"},
+      {t:0,text:"Accept blindly"}
+    ]},
+  { q:"Someone depends on you.", traits:["loyalty"],
+    opts:[
+      {t:2,text:"Stay committed"},
+      {t:1,text:"Help sometimes"},
+      {t:0,text:"Feel burdened"},
+      {t:0,text:"Withdraw"}
+    ]},
+  { q:"Under pressure, you:", traits:["stress"],
+    opts:[
+      {t:2,text:"Stay composed"},
+      {t:1,text:"Anxious"},
+      {t:0,text:"Overthink"},
+      {t:0,text:"Freeze"}
+    ]},
+  { q:"If someone makes a mistake:", traits:["empathy"],
+    opts:[
+      {t:2,text:"Support them"},
+      {t:1,text:"Correct politely"},
+      {t:0,text:"Irritated"},
+      {t:0,text:"Blame"}
+    ]},
+  { q:"Decision style:", traits:["decision"],
+    opts:[
+      {t:2,text:"Logic + emotion"},
+      {t:1,text:"Mostly logic"},
+      {t:0,text:"Mostly emotion"},
+      {t:0,text:"Others decide"}
+    ]},
+  { q:"You feel happiest when:", traits:["emotional"],
+    opts:[
+      {t:2,text:"People are happy"},
+      {t:1,text:"You succeed"},
+      {t:0,text:"Avoid problems"},
+      {t:0,text:"Alone"}
+    ]},
+  { q:"Plans change suddenly:", traits:["stress"],
+    opts:[
+      {t:2,text:"Adapt easily"},
+      {t:1,text:"Adjust slowly"},
+      {t:0,text:"Disturbed"},
+      {t:0,text:"Resist"}
+    ]},
+  { q:"You show loyalty by:", traits:["loyalty"],
+    opts:[
+      {t:2,text:"Standing by people"},
+      {t:1,text:"Helping when needed"},
+      {t:0,text:"Distance"},
+      {t:0,text:"Self first"}
+    ]},
+  { q:"Emotional situations:", traits:["emotional"],
+    opts:[
+      {t:2,text:"Control emotions"},
+      {t:1,text:"Express moderately"},
+      {t:0,text:"React strongly"},
+      {t:0,text:"Shut down"}
+    ]},
+  { q:"When someone shares problems:", traits:["empathy"],
+    opts:[
+      {t:2,text:"Listen deeply"},
+      {t:1,text:"Give advice"},
+      {t:0,text:"Change topic"},
+      {t:0,text:"Uncomfortable"}
+    ]},
+  { q:"You feel confident when:", traits:["decision"],
+    opts:[
+      {t:2,text:"Trust your decision"},
+      {t:1,text:"Others support"},
+      {t:0,text:"Avoid risk"},
+      {t:0,text:"No responsibility"}
+    ]},
+  { q:"Your emotional strength:", traits:["emotional"],
+    opts:[
+      {t:2,text:"Balanced"},
+      {t:1,text:"Sensitive"},
+      {t:0,text:"Unstable"},
+      {t:0,text:"Detached"}
+    ]}
+];
+
+/* ---------- State ---------- */
+let index = 0;
+let scores = { empathy:0, emotional:0, decision:0, loyalty:0, stress:0 };
+let maxScore = { empathy:0, emotional:0, decision:0, loyalty:0, stress:0 };
+
+questions.forEach(q => q.traits.forEach(t => maxScore[t] += 2));
+
+const qEl = document.getElementById("question");
+const optEl = document.getElementById("options");
+const resEl = document.getElementById("result");
+
+/* ---------- Functions ---------- */
+function loadQ() {
+  if (index >= questions.length) return showResult();
+
+  qEl.textContent = `Q${index + 1}. ${questions[index].q}`;
+  optEl.innerHTML = "";
+
+  const shuffledOptions = shuffle([...questions[index].opts]);
+
+  shuffledOptions.forEach(o => {
+    const btn = document.createElement("button");
+    btn.textContent = o.text;
+    btn.onclick = () => {
+      questions[index].traits.forEach(t => scores[t] += o.t);
+      index++;
+      loadQ();
+    };
+    optEl.appendChild(btn);
+  });
+}
+
+function percent(v, m) {
+  return m === 0 ? 0 : Math.round((v / m) * 100);
+}
+
+/* Ensure unique percentages */
+function makeUnique(pcts) {
+  const used = new Set();
+  Object.keys(pcts).forEach(k => {
+    while (used.has(pcts[k])) pcts[k]--;
+    used.add(pcts[k]);
+  });
+  return pcts;
+}
+
+function showResult() {
+  qEl.textContent = "🧾 Your Psychology Profile";
+  optEl.innerHTML = "";
+
+  let raw = {};
+  for (let t in scores) raw[t] = percent(scores[t], maxScore[t]);
+
+  const unique = makeUnique(raw);
+
+  let out = "";
+  for (let t in unique) {
+    out += `
+      <div class="label">${t.toUpperCase()} – ${unique[t]}%</div>
+      <div class="bar" style="width:${unique[t]}%"></div>
+    `;
+  }
+
+  resEl.innerHTML = out + `
+    <p><strong>Summary:</strong>
+    You are empathetic, emotionally aware, loyal, and a thoughtful decision-maker.</p>
+    <p><strong>Suggestion:</strong>
+    Trust your instincts, manage stress consciously, and continue emotional growth.</p>
+  `;
+}
+
+loadQ();
+</script>
+
+</body>
+</html>
